@@ -1,6 +1,6 @@
 # **React Query Darslari**
 
-## **1-Dars**
+## **1-Dars Kutubxonani o'rnatish va sozlash**
 
 `React Query` — frontend va backend o‘rtasidagi ma’lumotlar bilan ishlashni boshqarish uchun yaratilgan kutubxona. Bu orqali API'dan ma’lumotlarni olish, yangilash, o‘chirish kabi ishlarni avtomatik tarzda bajarish osonlashadi.
 
@@ -36,3 +36,52 @@ const queryClient = new QueryClient({});
 
 - `QueryClient`: Bu — React Query uchun konfiguratsiya (sozlamalar) saqlovchi obyekt.
 - `QueryClientProvider`: Bu — React kontekst provayderi bo‘lib, butun ilovaga React Query’ni "taqdim etadi".
+
+---
+
+## **2-Dars useQuery Hook**
+
+`useQuery` – komponent ichida serverdan ma'lumot olish uchun ishlatiladi. U ma'lumotni olib keladi, keshga saqlaydi va avtomatik ravishda yangilaydi. Shu bilan birga, yuklanish (loading) va xatolik (error) holatlarini ham boshqaradi.
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+
+export default function App() {
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["todo"],
+    queryFn: () =>
+      fetch("https://jsonplaceholder.typicode.com/todos").then((res) =>
+        res.json()
+      ),
+  });
+
+  if (error) return <div>There was an error</div>;
+  if (isLoading) return <div>Data is loading...</div>;
+
+  return (
+    <div>
+      {data.map((todo) => (
+        <div key={todo.id}>
+          <h2>{todo.id}</h2>
+          <h1>{todo.title}</h1>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+- `queryKey: ["todo"]`
+  - Bu kesh nomi — React Query ushbu nom asosida ma’lumotni saqlaydi va boshqaradi.
+- `queryFn: () => fetch(...).then(res => res.json())`
+  - Bu ma’lumotni olish funksiyasi. `fetch` orqali `https://jsonplaceholder.typicode.com/todos` API'dan ma'lumot olinadi.
+- `useQuery qaytaradi:`
+
+  - `data`: API'dan olingan ma’lumot (bu yerda todos array).
+  - `error`: Agar xatolik bo‘lsa, shu yerda bo‘ladi.
+  - `isLoading`: Ma'lumot yuklanayotgan paytda true bo‘ladi.
+
+- `if (error) return <div>There was an error</div>;`
+  - xatolik bo‘lsa — “There was an error” chiqadi,
+- `if (isLoading) return <div>Data is loading...</div>;`
+  - ma'lumot yuklanayotgan bo‘lsa — “Data is loading…” chiqadi.
