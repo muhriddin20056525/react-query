@@ -85,3 +85,53 @@ export default function App() {
   - xatolik bo‘lsa — “There was an error” chiqadi,
 - `if (isLoading) return <div>Data is loading...</div>;`
   - ma'lumot yuklanayotgan bo‘lsa — “Data is loading…” chiqadi.
+
+---
+
+## **2-Dars useMutation Hook**
+
+`useMutation` - hooki React Query'da ma'lumot yuborish (`POST, PUT, DELETE`) kabi `"write"` (yozish) amallarini bajarish uchun ishlatiladi.
+Bu hook orqali foydalanuvchi formani yuborganda yoki ma'lumot o'zgartirganda serverga so'rov jo‘natiladi.
+`useMutation` natijasida so‘rov holati (`loading, success, error`) kuzatiladi va UI’da shu holatlarga mos o‘zgarishlar ko‘rsatiladi.
+Shuningdek, muvaffaqiyatli so‘rovdan keyin `onSuccess` funksiyasi orqali kerakli qadamlarni (masalan, cache’ni yangilash yoki sahifani o‘zgartirish) bajarish mumkin.
+
+```tsx
+const { mutate, isPending, isError, isSuccess } = useMutation({
+  mutationFn: (newPost) =>
+    fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      body: JSON.stringify(newPost),
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+    }).then((res) => res.json()),
+});
+
+if (isError) return <div>There was an error</div>;
+
+{
+  isPending && <p>Data is pending</p>;
+}
+<button
+  onClick={() =>
+    mutate({
+      userId: 1,
+      id: 500000,
+      title: "Muhriddi title",
+      body: "Muhriddin description",
+    })
+  }
+>
+  Add
+</button>;
+```
+
+- `mutationFn` – bu POST so‘rovni bajaruvchi funksiya.
+- `newPost` – foydalanuvchidan keladigan yangi post ma’lumoti (masalan: title, body).
+- `fetch(...)` – bu ma'lumotni serverga jo‘natish.
+- `then((res) => res.json())` – javobni JSON formatga o‘girish.
+
+- `mutate` – POST so‘rovni ishga tushiruvchi funksiya (ya’ni tugma bosilganda chaqiriladi).
+- `isPending` – so‘rov bajarilayotgan vaqt.
+- `isError` – xatolik yuz bersa true bo‘ladi.
+- `isSuccess` – so‘rov muvaffaqiyatli bo‘lsa true bo‘ladi.
