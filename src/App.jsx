@@ -1,12 +1,22 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export default function App() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { staleTime: 6000 } },
+  });
+
   const { data, error, isLoading } = useQuery({
-    queryKey: ["todo"],
+    queryKey: ["posts"],
     queryFn: () =>
       fetch("https://jsonplaceholder.typicode.com/posts").then((res) =>
         res.json()
       ),
+    refetchInterval: 4000,
   });
 
   const { mutate, isPending, isError, isSuccess } = useMutation({
@@ -18,6 +28,10 @@ export default function App() {
           "Content-Type": "application/json; charset=UTF-8",
         },
       }).then((res) => res.json()),
+
+    onSuccess: (newPost) => {
+      queryClient.setQueryData(["posts"], (oldPosts) => [...oldPosts, newPost]);
+    },
   });
 
   if (error || isError) return <div>There was an error</div>;

@@ -88,7 +88,7 @@ export default function App() {
 
 ---
 
-## **2-Dars useMutation Hook**
+## **3-Dars useMutation Hook**
 
 `useMutation` - hooki React Query'da ma'lumot yuborish (`POST, PUT, DELETE`) kabi `"write"` (yozish) amallarini bajarish uchun ishlatiladi.
 Bu hook orqali foydalanuvchi formani yuborganda yoki ma'lumot o'zgartirganda serverga so'rov jo‘natiladi.
@@ -135,3 +135,91 @@ if (isError) return <div>There was an error</div>;
 - `isPending` – so‘rov bajarilayotgan vaqt.
 - `isError` – xatolik yuz bersa true bo‘ladi.
 - `isSuccess` – so‘rov muvaffaqiyatli bo‘lsa true bo‘ladi.
+
+---
+
+## **4-Dars Malumotlarni Keshlash**
+
+`Keshlash` — bu API’dan kelgan ma’lumotni vaqtincha saqlab qo‘yish degani. Shunda har safar sahifa ochilganda yoki komponent qayta ishlaganda API'ga qayta so‘rov yuborilmaydi, balki avvalgi javobdan foydalaniladi.
+
+```jsx
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 6000 } },
+});
+
+const { data, error, isLoading } = useQuery({
+  queryKey: ["posts"],
+  queryFn: () =>
+    fetch("https://jsonplaceholder.typicode.com/posts").then((res) =>
+      res.json()
+    ),
+  refetchInterval: 4000,
+});
+
+const { mutate, isPending, isError, isSuccess } = useMutation({
+  mutationFn: (newPost) =>
+    fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      body: JSON.stringify(newPost),
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+    }).then((res) => res.json()),
+
+  onSuccess: (newPost) => {
+    queryClient.setQueryData(["posts"], (oldPosts) => [...oldPosts, newPost]);
+  },
+});
+```
+
+```jsx
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 4000 } },
+});
+```
+
+- Bu global sozlama, hamma query uchun ishlaydi. Lekin istasangiz, har bir useQuery da alohida staleTime berishingiz ham mumkin.
+
+```jsx
+const { data, error, isLoading } = useQuery({
+  queryKey: ["posts"],
+  queryFn: () =>
+    fetch("https://jsonplaceholder.typicode.com/posts").then((res) =>
+      res.json()
+    ),
+  refetchInterval: 4000,
+});
+```
+
+- `queryKey: ["posts"]` → bu kesh uchun kalit.
+
+- `queryFn` → API'dan postlarni olib keladi.
+
+- `refetchInterval: 4000` → har 4 sekundda avtomatik yangilanadi.
+
+```jsx
+const { mutate, isPending, isError, isSuccess } = useMutation({
+  mutationFn: (newPost) =>
+    fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      body: JSON.stringify(newPost),
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+    }).then((res) => res.json()),
+
+  onSuccess: (newPost) => {
+    queryClient.setQueryData(["posts"], (oldPosts) => [...oldPosts, newPost]);
+  },
+});
+```
+
+- `mutationFn` → yangi post yaratadi.
+
+- `onSuccess` → yaratgandan keyin `["posts"]` query'sini qo‘lda yangilayapti:
+
+```jsx
+queryClient.setQueryData(["posts"], (oldPosts) => [...oldPosts, newPost]);
+```
+
+- Bu — optimistik yangilash usullaridan biri. Yangi postni darhol UI’da ko‘rsatadi, API javobini kutmasdan.
