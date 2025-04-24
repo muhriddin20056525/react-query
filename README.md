@@ -223,3 +223,25 @@ queryClient.setQueryData(["posts"], (oldPosts) => [...oldPosts, newPost]);
 ```
 
 - Bu — optimistik yangilash usullaridan biri. Yangi postni darhol UI’da ko‘rsatadi, API javobini kutmasdan.
+
+---
+
+## **5-Dars Keshni o'chirish (gcTime)**
+
+```jsx
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 6000, gcTime: 10 * (60 * 1000) } },
+});
+```
+
+- `defaultOptions` - Bu parametr orqali barcha query'lar uchun umumiy (default) sozlamalarni belgilanadi. Ya'ni har bir alohida query uchun `staleTime`, `gcTime` kabi parametrlarni yozmasdan shu yerda umumiy qilib belgilanadi.
+
+- `queries`: Bu query'lar (ya'ni useQuery bilan yoziladigan ma'lumotlarni olib kelish) uchun default sozlamalarni bildiradi.
+
+- `gcTime: 10 * (60 * 1000):`
+
+  - `garbage collection time`, ya'ni query cache (keshdagi ma'lumot) qachon avtomatik o‘chirib yuborilishini bildiradi.
+
+  - `10 * 60 * 1000` - 10 daqiqa.
+
+  - Demak, agar bu query 10 daqiqa davomida ishlatilmasa, React Query uni xotiradan olib tashlaydi.

@@ -6,9 +6,7 @@ import {
 } from "@tanstack/react-query";
 
 export default function App() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 6000 } },
-  });
+  const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["posts"],
@@ -16,6 +14,7 @@ export default function App() {
       fetch("https://jsonplaceholder.typicode.com/posts").then((res) =>
         res.json()
       ),
+
     refetchInterval: 4000,
   });
 
