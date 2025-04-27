@@ -5,17 +5,20 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
+const getPosts = () => {
+  fetch("https://jsonplaceholder.typicode.com/posts").then((res) => res.json());
+};
+
 export default function App() {
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["posts"],
-    queryFn: () =>
-      fetch("https://jsonplaceholder.typicode.com/posts").then((res) =>
-        res.json()
-      ),
+    queryFn: getPosts(),
 
-    refetchInterval: 4000,
+    staleTime: 3000,
+    refetchOnWindowFocus: false,
+    retry: 5,
   });
 
   const { mutate, isPending, isError, isSuccess } = useMutation({
